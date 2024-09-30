@@ -11,37 +11,85 @@ fn main()
 {
     let mut current_id: u32 = 1;
     let mut user_data : HashMap<u32, User> = HashMap::new();
+    let mut option:u8 = 0;
+
+
+    'operation : loop
+    {
+        println!("You can perform the following operations in the current version - \n
+        1 - Insert New User \n
+        2 - Qeury User Details \n
+        3 - Delete User \n
+        0 - Quit
+        ");
+
+        get_input(&mut option);
+
+        match option
+        {
+            1 => 
+            {
+                get_user_details(&mut user_data, &current_id);
+                current_id+=1;
+            },
+            2 => print_user_details(&user_data),
+            3 => remove_from_data(&mut user_data),
+            0 => 
+            {
+                println!("Quit operation called!");
+                break 'operation;
+            }
+            _ => println!("Operation not found!! Enter valid operation."), 
+        }
+
+    }
 
     
+
+    
+
+
+}
+
+fn remove_from_data(user_data:&mut HashMap<u32,User>)
+{
+    print!("Enter the id of the user to delete - ");
+    let mut user_id:u32 = 0;
+    get_input(&mut user_id);
+    let removed = user_data.remove(&user_id);
+
+    match removed
+    {
+        Some(removed) => println!("Removed user of id: {} from data.",user_id),
+        None => println!("User of id: {} not present",user_id),
+    }
+}
+
+
+fn print_user_details(user_data:&HashMap<u32,User>)
+{
+    println!("{:#?}",user_data);
+}
+
+fn get_user_details(user_data:&mut HashMap<u32,User>,current_id:&u32)
+{
     let mut user_name:String = String::new();
     print!("Enter your name - ");
     get_input(&mut user_name);
-    println!("User name is {user_name}");
 
-
-   
     print!("Enter your age - ");
     let mut user_age:u32 = 0;
     get_input(&mut user_age);
-    println!("User age is {user_age}");
 
-    print!("");
-
-
-
-
-    user_data.insert(current_id,
+    user_data.insert(*current_id,
         User::new(current_id,
             user_name,
             user_age,
             Membership::READER)
     );
-    
-    println!("User Ages: {:?}", &user_data[&1]);
-    
-
-
 }
+
+
 
 #[derive(Debug,PartialEq)]
 enum Membership
@@ -66,7 +114,7 @@ struct User
 
 impl User
 {
-    fn new(l_id:u32,l_name:String,l_age:u32,l_memb:Membership) -> User
+    fn new(l_id:&u32,l_name:String,l_age:u32,l_memb:Membership) -> User
     {
         let mut l_book_count: u8 = 0;
         if l_memb == Membership::PREMIUM
@@ -83,7 +131,7 @@ impl User
         }
         User
         {
-            id:l_id,
+            id:*l_id,
             name:l_name,
             age:l_age,
             membership:l_memb,
