@@ -4,16 +4,28 @@
 use std::collections::HashMap;
 use std::io::{self, Write};
 use std::str::FromStr;
+mod user;
+mod book;
 
 
 
 fn main() 
 {
-    let mut current_id: u32 = 1;
-    let mut user_data : HashMap<u32, User> = HashMap::new();
+    let mut current_user_id: u32 = 1;
+    let mut current_book_id: u32 = 1;
+    let mut user_data : HashMap<u32, user::User> = HashMap::new();
+    let mut book_data : HashMap<u32, book::Book> = HashMap::new();
+    
+    //display_options(&mut user_data, &mut current_user_id);
+
+    book::add_new_book(&mut book_data, &current_book_id);
+    book::display_book_details(&book_data);
+    
+}
+
+fn display_options(user_data:&mut HashMap<u32,user::User>,current_user_id:&mut u32)
+{
     let mut option:u8 = 0;
-
-
     'operation : loop
     {
         println!("You can perform the following operations in the current version - \n
@@ -29,11 +41,11 @@ fn main()
         {
             1 => 
             {
-                get_user_details(&mut user_data, &current_id);
-                current_id+=1;
+                user::add_new_user(user_data, &current_user_id);
+                *current_user_id += 1;
             },
-            2 => print_user_details(&user_data),
-            3 => remove_from_data(&mut user_data),
+            2 => user::print_user_details(user_data),
+            3 => user::remove_from_data(user_data),
             0 => 
             {
                 println!("Quit operation called!");
@@ -43,104 +55,8 @@ fn main()
         }
 
     }
-
-    
-
-    
-
-
 }
 
-fn remove_from_data(user_data:&mut HashMap<u32,User>)
-{
-    print!("Enter the id of the user to delete - ");
-    let mut user_id:u32 = 0;
-    get_input(&mut user_id);
-    let removed = user_data.remove(&user_id);
-
-    match removed
-    {
-        Some(removed) => println!("Removed user of id: {} from data.",user_id),
-        None => println!("User of id: {} not present",user_id),
-    }
-}
-
-
-fn print_user_details(user_data:&HashMap<u32,User>)
-{
-    println!("{:#?}",user_data);
-}
-
-fn get_user_details(user_data:&mut HashMap<u32,User>,current_id:&u32)
-{
-    let mut user_name:String = String::new();
-    print!("Enter your name - ");
-    get_input(&mut user_name);
-
-    print!("Enter your age - ");
-    let mut user_age:u32 = 0;
-    get_input(&mut user_age);
-
-    user_data.insert(*current_id,
-        User::new(current_id,
-            user_name,
-            user_age,
-            Membership::READER)
-    );
-}
-
-
-
-#[derive(Debug,PartialEq)]
-enum Membership
-{
-    PREMIUM,
-    READER,
-    REGULAR,
-}
-
-#[derive(Debug)]
-struct User
-{
-   
-    id:u32,
-    name:String,
-    age:u32,
-    membership:Membership,
-    max_books:u8,
-    current_book_count:u8
-
-}
-
-impl User
-{
-    fn new(l_id:&u32,l_name:String,l_age:u32,l_memb:Membership) -> User
-    {
-        let mut l_book_count: u8 = 0;
-        if l_memb == Membership::PREMIUM
-        {
-            l_book_count = 10;
-        }
-        else if l_memb == Membership::READER
-        {
-            l_book_count = 5;
-        }
-        else if l_memb == Membership::REGULAR
-        {
-            l_book_count = 3;
-        }
-        User
-        {
-            id:*l_id,
-            name:l_name,
-            age:l_age,
-            membership:l_memb,
-            max_books:l_book_count,
-            current_book_count:0
-        }
-
-    }
-}
 
 fn get_input<T>(value:&mut T)
 where 
